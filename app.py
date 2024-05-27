@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request
 import pandas as pd
-import random
 
 app = Flask(__name__)
 
@@ -17,7 +16,8 @@ def get_questions(num_questions, randomize):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    max_questions = len(df)
+    return render_template('index.html', max_questions=max_questions)
 
 @app.route('/quiz', methods=['POST'])
 def quiz():

@@ -47,9 +47,11 @@
             <h3>Questão {{ loop.index }}</h3>
             <p>{{ question.Question }}</p>
             <ul class="options">
-                {% for option in question.Options %}
-                <li><input type="radio" name="q{{ loop.index }}" value="{{ option }}"> {{ option }}</li>
-                {% endfor %}
+                <li><input type="radio" name="q{{ loop.index }}" value="A"> {{ question.OptionA }}</li>
+                <li><input type="radio" name="q{{ loop.index }}" value="B"> {{ question.OptionB }}</li>
+                <li><input type="radio" name="q{{ loop.index }}" value="C"> {{ question.OptionC }}</li>
+                <li><input type="radio" name="q{{ loop.index }}" value="D"> {{ question.OptionD }}</li>
+                <li><input type="radio" name="q{{ loop.index }}" value="E"> {{ question.OptionE }}</li>
             </ul>
             <p class="result" id="result{{ loop.index }}"></p>
             <p class="explanation" id="explanation{{ loop.index }}">{{ question.Explanation }}</p>
