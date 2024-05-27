@@ -1,23 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz</title>
+    <title>Quiz Esfcex</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .question {
+            margin-bottom: 20px;
+        }
+        .question h3 {
+            margin-bottom: 10px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 5px;
+        }
+        .correct-answer {
+            background-color: #d4edda; /* Verde claro */
+            border-left: 4px solid #28a745; /* Verde escuro */
+            padding-left: 10px;
+        }
+        .result {
+            font-weight: bold;
+        }
+        .explanation {
+            margin-top: 10px;
+            font-style: italic;
+            display: none;
+        }
+        .correct {
+            color: green;
+        }
+        .incorrect {
+            color: red;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Quiz</h1>
-        <form action="#">
-            {% for question in questions %}
-                <div class="question">
-                    <p>{{ question['Question'] }}</p>
-                    <input type="text" name="answer{{ loop.index }}" placeholder="Your Answer">
-                </div>
-            {% endfor %}
-            <button type="submit">Submit Answers</button>
-        </form>
+    <div id="questions-container">
+        {% for question in questions %}
+        <div class="question">
+            <h3>Questão {{ loop.index }}</h3>
+            <p>{{ question.Question }}</p>
+            <ul class="options">
+                {% for option in question.Options %}
+                <li><input type="radio" name="q{{ loop.index }}" value="{{ option }}"> {{ option }}</li>
+                {% endfor %}
+            </ul>
+            <p class="result" id="result{{ loop.index }}"></p>
+            <p class="explanation" id="explanation{{ loop.index }}">{{ question.Explanation }}</p>
+        </div>
+        {% endfor %}
     </div>
+
+    <button onclick="checkAnswers()">Verificar Respostas</button>
+
+    <script>
+        var correctAnswers = {
+            {% for question in questions %}
+            q{{ loop.index }}: '{{ question.CorrectAnswer }}'{% if not loop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        function checkAnswers() {
+            var questions = document.querySelectorAll('.question');
+            questions.forEach((question, index) => {
+                var options = question.querySelectorAll('input[type="radio"]');
+                var resultElement = document.getElementById('result' + (index + 1));
+                var explanationElement = document.getElementById('explanation' + (index + 1));
+                var selectedAnswer = Array.from(options).find(option => option.checked);
+                
+                // Limpar estilos anteriores
+                options.forEach(option => {
+                    option.parentNode.classList.remove('correct-answer');
+                });
+
+                if (selectedAnswer) {
+                    if (selectedAnswer.value === correctAnswers['q' + (index + 1)]) {
+                        resultElement.textContent = 'Correto!';
+                        resultElement.classList.add('correct');
+                        resultElement.classList.remove('incorrect');
+                    } else {
+                        resultElement.textContent = 'Incorreto!';
+                        resultElement.classList.add('incorrect');
+                        resultElement.classList.remove('correct');
+                    }
+                    explanationElement.style.display = 'block';
+                    // Destacar a resposta correta
+                    options.forEach(option => {
+                        if (option.value === correctAnswers['q' + (index + 1)]) {
+                            option.parentNode.classList.add('correct-answer');
+                        }
+                    });
+                } else {
+                    resultElement.textContent = 'Por favor, selecione uma resposta.';
+                    resultElement.classList.remove('correct');
+                    resultElement.classList.remove('incorrect');
+                    explanationElement.style.display = 'none';
+                }
+            });
+        }
+    </script>
 </body>
 </html>

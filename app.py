@@ -1,18 +1,19 @@
 from flask import Flask, render_template, request
 import pandas as pd
+import random
 
 app = Flask(__name__)
 
 # Carregar o arquivo CSV
 df = pd.read_csv('output.csv')
 
-# Função para obter questões aleatórias
-def get_random_questions(num_questions, subjects):
-    filtered_df = df[df['Question'].str.contains('|'.join(subjects))]
-    if num_questions > len(filtered_df):
-        num_questions = len(filtered_df)
-    questions = filtered_df.sample(n=num_questions)
-    return questions
+# Função para obter questões aleatórias ou sequenciais
+def get_questions(num_questions, randomize):
+    if randomize:
+        questions = df.sample(n=num_questions)
+    else:
+        questions = df.head(num_questions)
+    return questions.to_dict(orient='records')
 
 @app.route('/')
 def index():
@@ -21,9 +22,9 @@ def index():
 @app.route('/quiz', methods=['POST'])
 def quiz():
     num_questions = int(request.form['num_questions'])
-    subjects = request.form.getlist('subjects')
-    questions = get_random_questions(num_questions, subjects)
-    return render_template('quiz.html', questions=questions.to_dict(orient='records'))
+    randomize = request.form['random_questions'] == 'yes'
+    questions = get_questions(num_questions, randomize)
+    return render_template('quiz.html', questions=questions)
 
 if __name__ == '__main__':
     app.run(debug=True)
